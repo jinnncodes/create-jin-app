@@ -2,23 +2,37 @@
 
 Reusable React starter kit with a login page, dashboard, and optional Firebase backend.
 
-## Use this as your starter
-
-After this repo is on GitHub, turn it into a template:
-
-1. GitHub repo **Settings** → check **Template repository**
-2. On the repo home page, click **Use this template** → **Create a new repository**
-
-Or clone it:
+## Create a new project
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/create-jin-app.git my-app
+mkdir my-app
+cd my-app
+npx create-jin-app .
+pnpm install
+pnpm dev
+```
+
+Or:
+
+```bash
+npx create-jin-app my-app
 cd my-app
 pnpm install
 pnpm dev
 ```
 
 Open http://localhost:5173. Sign in with any email and password `Password`.
+
+`npx create-jin-app` clones this GitHub repo into the folder and turns it into a fresh app (no starter git history, no CLI).
+
+The first time you enable that command, publish the CLI to npm from this repo:
+
+```bash
+npm login
+npm publish
+```
+
+After that, any empty folder can run `npx create-jin-app .`. Template updates go out when you push `main`; you only republish npm when the CLI itself changes.
 
 ## Tech stack
 

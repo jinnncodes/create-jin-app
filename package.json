@@ -1,9 +1,27 @@
 {
   "name": "create-jin-app",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "Reusable React + Firebase starter kit",
   "type": "module",
+  "bin": {
+    "create-jin-app": "./bin/create-jin-app.mjs"
+  },
+  "files": [
+    "bin/create-jin-app.mjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jinnncodes/create-jin-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jinnncodes/create-jin-app/issues"
+  },
+  "homepage": "https://github.com/jinnncodes/create-jin-app#readme",
+  "license": "MIT",
+  "author": "Jin",
   "scripts": {
     "ensure-firebase-config": "node ./scripts/ensure-firebase-config.mjs",
     "predev": "pnpm run ensure-firebase-config",
