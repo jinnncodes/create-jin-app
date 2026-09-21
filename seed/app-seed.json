@@ -1,0 +1,21 @@
+{
+  "firestore": {
+    "users": {
+      "seed-user-1": {
+        "id": "seed-user-1",
+        "email": "demo@example.com",
+        "displayName": "Demo User",
+        "photoUrl": null,
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "updatedAt": "2026-01-01T00:00:00.000Z"
+      }
+    },
+    "exampleItems": {
+      "item-1": {
+        "title": "Example item",
+        "createdBy": "seed-user-1",
+        "createdAt": "2026-01-01T00:00:00.000Z"
+      }
+    }
+  }
+}
