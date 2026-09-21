@@ -1,0 +1,176 @@
+---
+description: create-jin-app architecture, stack, and workflow rules for this Firebase starter kit
+alwaysApply: true
+---
+
+# create-jin-app
+
+This repository is a reusable starter kit. Preserve generic, copy-pasteable functionality. Do not add project-specific business logic, hardcoded domain roles, or extra frameworks unless the current app's requirements demand it.
+
+## Tech stack
+
+Frontend: React, Vite, TypeScript, Tailwind CSS, shadcn/ui, pnpm.
+
+Backend: Firebase Authentication, Cloud Firestore, Firebase Storage, Cloud Functions (Node.js + Firebase Admin SDK).
+
+Do not add Supabase, Drizzle, Hono, tRPC, or a custom HTTP API server. Data lives in Firestore. Server-side work lives in `cloud-functions/src/`.
+
+## Project structure
+
+```text
+.cursor/commands/     # Slash commands: create_brief, plan_feature, code_review
+.cursor/rules/        # Project rules
+src/                  # Frontend only
+cloud-functions/src/  # Backend only
+public/               # Static assets
+seed/app-seed.json    # Emulator seed data
+scripts/              # Dev / emulator tooling
+docs/features/        # Feature docs; do not commit
+```
+
+Frontend source belongs under `src/` (`components/`, `pages/`, `routes/`, `hooks/`, `lib/`, `services/`, `types/`). Do not create React components or pages outside `src/`.
+
+`public/` holds fonts, assets, icons, images, `favicon.ico`, `robots.txt`, and `sitemap.xml`. Keep application logic out of `public/`.
+
+`cloud-functions/lib/` is generated `tsc` output. Never write business logic there. Edit `cloud-functions/src/` and build.
+
+Install packages with `pnpm add`. Add shadcn components with `npx shadcn@latest add`.
+
+## React
+
+Use functional components. No classes/OOP. Extract reusable hooks instead of duplicating stateful logic. Keep shadcn primitives in `src/components/ui/` and compose app components beside them.
+
+## Routing and roles
+
+Routes live in `src/routes/`. This starter must not hardcode Patient, Clinic, Admin, or any other domain role.
+
+Determine user types from the current project's requirements, then create matching route files. Example only if that app actually has those roles:
+
+```text
+src/routes/index.tsx
+src/routes/auth.routes.tsx
+src/routes/patient.routes.tsx
+src/routes/clinic.routes.tsx
+src/routes/admin.routes.tsx
+```
+
+Keep `auth.routes.tsx` generic. The starter ships `/login` (public, noindex) and `/dashboard` plus `/settings` (authenticated). Put additional public pages in `public.routes.tsx`.
+
+## Authentication and authorization
+
+Default local development uses `src/data/local-auth.json` (any email, default password from that file). This is DEV-only and must not be used in production.
+
+Set `VITE_AUTH_MODE=firebase` to use Firebase Auth. Preserve anonymous sign-in, email/password, Google, and anonymous-account linking unless requirements say otherwise.
+
+`src/lib/auth-context.tsx` owns auth state. `src/services/users.ts` owns the user profile (localStorage in local mode, Firestore `users/{uid}` in Firebase mode).
+
+Authorize on both sides: Firestore/Storage rules and Cloud Functions auth checks. Never trust the client alone. Default: users may read/write only their own `users/{uid}` document.
+
+## Firebase and Cloud Functions
+
+Initialize client SDKs in `src/lib/firebase.ts`. Connect Auth, Firestore, Storage, and Functions emulators when `VITE_USE_FIREBASE_EMULATOR=true`.
+
+Keep these reusable function examples: `cloud-functions/src/example/`, `billingTax.ts`, `dataExport.ts`, `index.ts`. Keep them generic.
+
+Use the Admin SDK only inside Cloud Functions (or emulator seed scripts). Do not ship Admin credentials to the browser.
+
+## Environment variables and secrets
+
+Do not read, print, or commit `.env` files. Do not hardcode secrets. Put secret names in `.env.example` with empty values.
+
+Client env vars must be `VITE_*`. Server secrets (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, service accounts) belong in Cloud Functions config / Secret Manager, never in `src/`.
+
+If a new variable is required, tell the human:
+
+```text
+File:
+Variable:
+Purpose:
+```
+
+## Firestore and seed data
+
+Do not push schema changes to production. Write rules/index updates in `firestore.rules` and `firestore.indexes.json` for the human to deploy.
+
+Seed through `seed/app-seed.json`. Default: `pnpm seed` against the Firebase Emulator. If `FIRESTORE_EMULATOR_HOST` is missing, refuse emulator seed.
+
+Production seed is allowed only when the human explicitly asks to seed production. Then:
+
+1. Warn that this writes to the live Firebase project.
+2. Require `ALLOW_PRODUCTION_SEED=true` and a real `FIREBASE_PROJECT_ID` (not `demo-project`).
+3. Give the command `pnpm seed:prod`. Do not run it unless the human also asked you to execute it.
+4. Never seed production as a side effect of local setup, tests, or `pnpm dev`.
+
+Start emulators with `scripts/start-emulators-functions.mjs` / `pnpm emulators`.
+
+## Code-change workflow
+
+Inspect existing code and adapt it. Do not blindly rewrite. Do not create duplicate helpers. Do not delete unrelated functionality.
+
+Do not modify `docs/features/` unless explicitly asked. Never commit files from `docs/features/`.
+
+Do not modify production Firebase data unless the human explicitly asks (including production seed).
+
+## Git
+
+Never run `git commit`, `git push`, `git add` for a commit, or any other git write. Never update git config. Never skip hooks. Never force-push.
+
+When work is ready to save, **give the human the commands**. Do not execute them.
+
+Split work into **multiple logical commits**, not one commit for all changes. Group by purpose:
+
+- `feat:` new user-facing capability
+- `fix:` bug fix
+- `refactor:` behavior-preserving restructure
+- `chore:` tooling, deps, config
+- `docs:` documentation / Cursor rules
+- `style:` formatting only
+
+Rules for the suggested series:
+
+1. Each commit is one concern (rules, seed tooling, UI, functions, etc.).
+2. Messages explain **why**, present tense, 50–72 character subject.
+3. Stage only related files per commit. Show `git add <paths>` then `git commit -m "..."`.
+4. Do not include `.env`, `src/lib/firebase-config.json`, `cloud-functions/lib/`, `docs/features/`, or secrets.
+5. After the commit commands, give a single `git push` (or `git push -u origin HEAD` if the branch has no upstream).
+6. If the human did not ask to publish, omit `git push` or list it as optional.
+
+Example shape (adapt paths and messages to the actual diff):
+
+```bash
+git add .cursor/rules/project.mdc .cursorrules
+git commit -m "docs: allow explicit production seed and git command handoff"
+
+git add scripts/seed-emulator.mjs package.json
+git commit -m "feat: add opt-in production Firestore seed command"
+
+git push
+```
+
+## SEO
+
+Use `src/lib/seo.ts` for title, description, canonical URL, Open Graph, and Twitter/X tags.
+
+Public pages: `index,follow`. Private/authenticated/admin/user-specific pages: `noindex,nofollow`. Keep `public/robots.txt` and `public/sitemap.xml` in sync; sitemap includes public URLs only.
+
+## TypeScript, services, errors
+
+Stay strict. Share types in `src/types/`. Frontend data access goes through `src/services/`, not random Firestore calls in components.
+
+Handle errors with user-visible messages for expected failures and `console.error` (or functions logs) for unexpected ones. Do not swallow errors.
+
+## Security and Stripe
+
+Lock down Firestore and Storage rules by default.
+
+Stripe lives only in Cloud Functions. `stripeWebhook` must verify `Stripe-Signature` with `STRIPE_WEBHOOK_SECRET` before handling events. Never log raw webhook bodies, secrets, or card data. Never call Stripe with the secret key from the client.
+
+## UI/UX and docs
+
+Match existing shadcn/Tailwind patterns, spacing, and dark-mode tokens. Keep demo pages generic.
+
+Update `README.md` and `docs/PORT_HANDLING.md` when ports, scripts, or architecture change. Prefer short, accurate docs over new markdown files.
+
+## Verification
+
+Before claiming done: check structure and imports, run `pnpm typecheck` and `pnpm lint`, grep for broken `@server` / tRPC / Hono imports, confirm no secrets were added, confirm `cloud-functions/lib/` was not hand-edited, and confirm `docs/features/` was not changed. Verify UI in the browser when UI behavior changed.
