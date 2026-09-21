@@ -1,5 +1,12 @@
-- Tech stack: React (vite), Tailwind, ShadCN, Firebase Auth, Supabase postgres, pnpm, Node.JS, Hono API, trpc, drizzle
+- Tech stack: React (Vite), TypeScript, Tailwind, shadcn/ui, Firebase Auth, Cloud Firestore, Firebase Storage, Firebase Cloud Functions, pnpm, Node.js, Firebase Admin SDK
+- Frontend source lives in `src/`. Backend/server-side code lives in `cloud-functions/src/`.
 - Use `pnpm add` when installing new packages.
 - Use `npx shadcn@latest add` to add new shadcn components.
 - You are not able to see or modify .env files directly - so tell the user what they should add to the file if needed.
+- Avoid classes/OOP and use a functional reusable component programming style.
+- Do not add Supabase, Drizzle, Hono, or tRPC.
+- When Firestore rules or indexes change, edit the committed rules/index files; do not apply production schema changes yourself.
+- Default local auth is `src/data/local-auth.json` (DEV only). Set `VITE_AUTH_MODE=firebase` when using Firebase Auth/Firestore.
+- Default seed is the Firebase Emulator via `pnpm seed`. Seed production only when explicitly asked, then give `pnpm seed:prod` (requires ALLOW_PRODUCTION_SEED=true).
+- Never run git commit or git push. Give the user the commands, split into multiple logical commits, then an optional git push.
 - Never commit files from the ./docs/features folder

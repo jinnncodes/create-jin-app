@@ -7,8 +7,7 @@ data
 dist
 dist-ssr
 build
-.wrangler
-.dev.vars
+cloud-functions/lib
 
 # Environment files
 *.local
@@ -16,12 +15,8 @@ build
 .env.*
 !.env.example
 
-# Generated configuration files (created by CLI setup)
-ui/src/lib/firebase-config.json
-server/.dev.vars
-server/wrangler.toml
-ui/wrangler.toml
-volo-config.json
+# Generated / local Firebase web config
+src/lib/firebase-config.json
 
 # Editor directories and files
 .vscode/*
@@ -45,23 +40,12 @@ lerna-debug.log*
 
 # Testing
 coverage
-/cypress/videos/
-/cypress/screenshots/
 
-# Vite specific
+# Vite / TypeScript
 .vite
 *.timestamp-*.mjs
-
-# TypeScript
 *.tsbuildinfo
 
-# Cloudflare Workers specific
-.cloudflare
-worker-configuration.d.ts
-.dev.vars
-.mf
-
-# OS specific
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+# Feature docs are local-only
+docs/features/**
+!docs/features/.gitkeep

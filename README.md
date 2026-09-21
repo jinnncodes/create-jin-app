@@ -1,149 +1,113 @@
-# Your Volo App
+# create-jin-app
 
-Full-stack app built with React + Hono + PostgreSQL. Created with [create-volo-app](https://github.com/VoloBuilds/create-volo-app).
+Reusable React starter kit with a login page, dashboard, and optional Firebase backend.
 
-## Tech Stack
+## Use this as your starter
 
-- **Frontend:** React, TypeScript, Vite, Tailwind CSS, ShadCN
-- **Backend:** Hono (Node.js), tRPC, Drizzle ORM
+After this repo is on GitHub, turn it into a template:
+
+1. GitHub repo **Settings** → check **Template repository**
+2. On the repo home page, click **Use this template** → **Create a new repository**
+
+Or clone it:
+
+```bash
+git clone https://github.com/YOUR_GITHUB_USERNAME/create-jin-app.git my-app
+cd my-app
+pnpm install
+pnpm dev
+```
+
+Open http://localhost:5173. Sign in with any email and password `Password`.
+
+## Tech stack
+
+- **Frontend:** React, TypeScript, Vite, Tailwind CSS, shadcn/ui
 - **Auth:** Firebase Authentication
-- **Database:** PostgreSQL (embedded locally, Neon/Supabase/custom in production)
-- **Deployment:** Cloudflare Workers (API + static assets)
+- **Data:** Cloud Firestore
+- **Files:** Firebase Storage
+- **Backend:** Firebase Cloud Functions (Node.js, Firebase Admin SDK)
 
 ## Development
 
-```bash
-pnpm run dev
-```
-
-Starts the UI, API server, embedded PostgreSQL, and Firebase Auth emulator. Ports are assigned automatically in a **5500 block** (defaults: API on `5500`, UI on `5501`, Postgres from `5502`, Firebase Auth emulator on `5503`).
-
-The local UI talks to the local API via `ui/.env.local` (`VITE_API_URL=http://localhost:5500`). Root `pnpm run dev` overrides this with dynamic ports automatically.
-
-To aim the local UI at a different backend, set `VITE_API_URL` in `ui/.env.local`, or pass `--api-url` when starting Vite manually.
-
-### Individual commands
+Without a database, run the UI with local JSON login:
 
 ```bash
-cd ui && pnpm dev          # Frontend only
-cd server && pnpm dev      # Backend only
-cd ui && pnpm build        # Build frontend
-cd server && pnpm run deploy  # Deploy backend
+pnpm install
+pnpm dev
 ```
 
-## Project Structure
+Open http://localhost:5173. Sign in with **any email** and password **Password**.
 
-```
-├── ui/                    # React frontend
-│   ├── src/
-│   │   ├── components/    # UI components (ShadCN)
-│   │   ├── lib/           # Utilities, auth, tRPC client
-│   │   └── App.tsx
-│   └── package.json
-├── server/                # Hono API backend
-│   ├── src/
-│   │   ├── trpc/          # tRPC router and procedures
-│   │   ├── middleware/    # Auth middleware
-│   │   ├── schema/        # Drizzle database schema
-│   │   └── api.ts         # REST routes
-│   ├── .env
-│   └── package.json
-├── data/                  # Local dev data (Postgres, Firebase emulator)
-└── scripts/               # Dev tooling
-```
+This uses `src/data/local-auth.json` and does not start Firebase or Firestore.
 
-## Connecting Production Services
-
-By default everything runs locally. Connect production services when ready:
+When you are ready for Firebase:
 
 ```bash
-pnpm connect:database           # Interactive database provider selection
-pnpm connect:database:neon      # Neon PostgreSQL
-pnpm connect:database:supabase  # Supabase PostgreSQL
-pnpm connect:database:custom    # Custom PostgreSQL
-
-pnpm connect:auth               # Production Firebase Auth
-pnpm connect:deploy             # Cloudflare Workers deployment
-
-pnpm connection:status          # Check what's connected
+# File: .env.local
+# Variable: VITE_AUTH_MODE
+# Purpose: set to firebase
+pnpm dev:firebase
 ```
-
-Connecting a service updates your `.env` files and creates a backup of the previous config.
-
-## Adding API Routes
-
-**tRPC (required for typed data):** User profile and other database-backed operations live under `/trpc/*`. Add procedures in `server/src/trpc/routers/` and register them in `router.ts`. Derive input/output schemas from Drizzle in `server/src/schema/zod.ts`.
-
-**REST (non-data HTTP only):** Use REST for streaming, file upload/download, webhooks, or other plain HTTP that does not fit tRPC. Add routes in `server/src/api.ts`:
-
-```typescript
-api.get('/your-route', (c) => {
-  return c.json({ message: 'Hello!' });
-});
-```
-
-Use `authMiddleware` from `server/src/middleware/auth.ts` when a REST route needs Firebase auth. There is no REST user profile endpoint — use `trpc.user.me` and related procedures instead.
-
-## Database
-
-Uses Drizzle ORM. Schema lives in `server/src/schema/`.
 
 ```bash
-cd server && pnpm db:push    # Push schema changes to database
+pnpm ui              # Frontend only
+pnpm emulators       # Firebase emulators + Cloud Functions build
+pnpm seed            # Seed Firestore emulator from seed/app-seed.json
+pnpm seed:prod       # Seed live Firestore (requires ALLOW_PRODUCTION_SEED=true)
+pnpm build           # Production frontend build
+pnpm typecheck       # TypeScript (frontend + functions)
+pnpm lint            # ESLint
 ```
 
-**After Cloudflare deploy is connected** (`pnpm connect:deploy` or scaffold with `--deploy`), root `pnpm run dev` switches to **Wrangler dev** and does **not** start embedded PostgreSQL. To develop with the local embedded database, run **`pnpm dev:node`** instead (added when deploy is connected).
+`pnpm seed` requires the emulators to be running.
 
-## UI Components
+To seed a live Firebase project, set `ALLOW_PRODUCTION_SEED=true` and `FIREBASE_PROJECT_ID` to the real project, then run `pnpm seed:prod`. Do this only when you intend to write production data.
+
+## Project structure
+
+```text
+src/                      # React frontend
+├── components/           # App components + shadcn/ui
+├── pages/
+├── routes/               # Create role files from app requirements
+├── hooks/
+├── lib/                  # firebase, seo, auth, utils
+├── services/             # Firestore / callable access
+├── types/
+├── App.tsx
+└── main.tsx
+public/                   # fonts, assets, icons, images, robots, sitemap
+cloud-functions/src/      # Cloud Functions source
+seed/app-seed.json
+scripts/start-emulators-functions.mjs
+docs/features/            # Local feature docs; do not commit
+```
+
+## Firebase web config
+
+`src/lib/firebase-config.json` is generated from `src/lib/firebase-config.template.json` on first `pnpm dev` / `pnpm build`. Replace the placeholders with your Firebase web app config before using a real project.
+
+Local emulator usage does not require production keys. `.firebaserc` defaults to `demo-project`.
+
+## Environment
+
+Copy `.env.example` to `.env.local` for the frontend. For local JSON login, keep `VITE_AUTH_MODE=local`. Switch to `firebase` when you add Auth and Firestore.
+
+Never commit secrets. Emulator seed is the default. Production seed requires an explicit `pnpm seed:prod` with `ALLOW_PRODUCTION_SEED=true`.
+
+## UI components
 
 ```bash
-cd ui && npx shadcn@latest add [component]
+npx shadcn@latest add [component]
 ```
 
-Browse available components at [ui.shadcn.com](https://ui.shadcn.com).
+## Routing
 
-## Deployment
+Default screens:
 
-Prerequisite: run `pnpm connect:deploy` (or scaffold with `--deploy` / a `volo-config.json` deploy section).
+- `/login` — sign in / register (shadcn)
+- `/dashboard` — signed-in home (shadcn)
+- `/settings` — profile
 
-Connecting Cloudflare deploy updates the server to use **Wrangler dev**. After that, root **`pnpm run dev`** simulates the Workers runtime and expects a **remote** `DATABASE_URL` — it will not start embedded PostgreSQL. For local development with the embedded database, use **`pnpm dev:node`**.
-
-Deploy both API and UI to Cloudflare Workers:
-
-```bash
-pnpm run deploy
-```
-
-This deploys the API first, writes `ui/.env.production` with the production API URL, then deploys the UI.
-
-`ui/.env.local` is for local dev only — editing it does not change production builds. To change the production API URL, edit `ui/.env.production` or re-run `pnpm run deploy`.
-
-Or deploy individually from the repo root:
-
-```bash
-pnpm --filter server run deploy    # API Worker
-pnpm --filter ui run deploy        # UI Worker (static assets; requires ui/.env.production)
-```
-
-Set these environment variables in the Cloudflare Workers dashboard for the API Worker:
-
-- `DATABASE_URL` - Database connection string
-- `FIREBASE_PROJECT_ID` - Firebase project ID
-
-After deploying, add your Workers domain to Firebase Console > Authentication > Settings > Authorized domains.
-
-## Troubleshooting
-
-**Backend won't start:** Check `server/.env` and run `pnpm install`.
-
-**Database errors:** Run `cd server && pnpm db:push` to test the connection.
-
-**Frontend build errors:** Clear caches with `cd ui && rm -rf node_modules .vite dist && pnpm install`.
-
-**Auth issues (local):** The Firebase emulator starts automatically with `pnpm dev`. Emulator data is in `data/firebase-emulator/` and backed up automatically.
-
-**Auth issues (production):** Verify `ui/src/lib/firebase-config.json`, `server/.env`, and authorized domains in Firebase Console.
-
-**UI works locally but production app hits wrong API:** Check `ui/.env.production`, not `.env.local`. Re-run `pnpm run deploy`.
-
-**UI production build fails on VITE_API_URL:** Run `pnpm run deploy` from the project root, or set `VITE_API_URL` in `ui/.env.production` manually after `pnpm --filter server run deploy`.
+Do not hardcode Patient, Clinic, Admin, or other domain roles in this starter. Derive user types from the product requirements and add matching files under `src/routes/`.
