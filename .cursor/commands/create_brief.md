@@ -8,6 +8,7 @@ Please create a product brief based on the description that the user provides. Y
 2. Target audience
 3. Primary benefits / features
 4. High-level tech/architecture used
+5. Note that UI conventions live in `.cursor/rules/ui-ux.mdc`; only call out product-specific UI exceptions in the brief (do not invent alternate modal/list/empty-state patterns)
 
 Keep the brief very concise and to the point just to give enough context to understand the bigger picture.
 Write the document into docs/PRODUCT_BRIEF.md (unless a different file name is specified)

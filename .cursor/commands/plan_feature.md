@@ -15,6 +15,10 @@ This is strictly a technical requirements document that should:
 2. Point to all the relevant files and functions that need to be changed or created
 3. Explain any algorithms that are used step-by-step
 4. If necessary, breaks up the work into logical phases. Ideally this should be done in a way that has an initial "data layer" phase that defines the types and db changes that need to run, followed by N phases that can be done in parallel (e.g. Phase 2A - UI, Phase 2B - API). Only include phases if it's a REALLY big feature.
+5. **Always include a "Global Constraints / UI-UX" section** that:
+   - Points at `.cursor/rules/ui-ux.mdc` as the source of truth for modals, lists, row actions, empty vs error, and dark mode
+   - Does **not** restate those defaults in full
+   - Only lists product-specific exceptions or additions (e.g. role-gated row actions for this app)
 
 If the user's requirements are unclear, especially after researching the relevant files, you may ask up to 5 clarifying questions before writing the plan. If you do so, incorporate the user's answers into the plan.
 

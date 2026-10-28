@@ -10,5 +10,6 @@ Please do a thorough code review:
 3. Look for subtle data alignment issues (e.g. expecting snake_case but getting camelCase or expecting data to come through in an object but receiving a nested object like {data:{}})
 4. Look for any over-engineering or files getting too large and needing refactoring
 5. Look for any weird syntax or style that doesn't match other parts of the codebase
+6. Check UI against `.cursor/rules/ui-ux.mdc` (Modal + X, list Add button, disabled+tooltip row actions, empty vs error, dark-mode tokens on form controls)
 
 Document your findings in docs/features/ _REVIEW.md unless a different file name is specified.

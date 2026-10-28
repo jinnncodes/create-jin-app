@@ -19,7 +19,7 @@ Do not add Supabase, Drizzle, Hono, tRPC, or a custom HTTP API server. Data live
 
 ```text
 .cursor/commands/     # Slash commands: create_brief, plan_feature, code_review
-.cursor/rules/        # Project rules
+.cursor/rules/        # Project rules (project.mdc + ui-ux.mdc always apply)
 src/                  # Frontend only
 cloud-functions/src/  # Backend only
 public/               # Static assets
@@ -28,7 +28,7 @@ scripts/              # Dev / emulator tooling
 docs/features/        # Feature docs; do not commit
 ```
 
-Frontend source belongs under `src/` (`components/`, `pages/`, `routes/`, `hooks/`, `lib/`, `services/`, `types/`). Do not create React components or pages outside `src/`.
+Frontend source belongs under `src/` (`components/`, `pages/`, `routes/`, `hooks/`, `lib/`, `services/`, `types/`). Do not create React components or pages outside `src/`. Shared create/add dialogs use `src/components/Modal.tsx`. UI conventions live in `.cursor/rules/ui-ux.mdc` — feature plans must reference them under Global Constraints / UI-UX and only restating product-specific exceptions.
 
 `public/` holds fonts, assets, icons, images, `favicon.ico`, `robots.txt`, and `sitemap.xml`. Keep application logic out of `public/`.
 

@@ -1,0 +1,35 @@
+---
+description: Shared UI/UX conventions for modals, lists, row actions, empty vs error, and dark mode
+alwaysApply: true
+---
+
+# UI / UX conventions
+
+Always-on starter defaults. Product-specific exceptions belong in the feature plan’s Global Constraints / UI-UX section—do not invent alternate patterns.
+
+## Modals
+
+- Use shared `src/components/Modal.tsx` for simple create/add flows.
+- Every closeable modal has a top-right **X**.
+- Required fields are marked with `*`.
+- Show per-field empty/invalid errors (not only a form-level banner).
+- Header uses `pe-12` (or equivalent) so the title does not sit under the X.
+- Before done: verify create modals in **dark mode**.
+
+## Lists
+
+- Index pages that can create include a header **Add …** button.
+- Empty API result (`[]` / no docs) → empty-state copy only. Never a red error banner for emptiness.
+- Soft-fail (permission denied, race, list noise) → `console.error` (or equivalent) + empty UI. Page-level error only when the load truly failed.
+
+## Row actions
+
+- Disallowed actions are **disabled**, not hidden.
+- Disabled controls must still show a hover tooltip: wrap in `<span title="…">` and put `pointer-events-none` on the disabled button (native `title` does not fire when the control itself has `pointer-events-none` / is disabled without a wrapper).
+- Example pattern only (not a hardcoded domain role): an admin (or current user) **cannot edit/delete self** → disable those row actions and explain via tooltip. Put real roles in the app’s specs, not the starter.
+
+## Dark mode
+
+- Modal, Input, Textarea, Select, Button, Badge, and DropdownMenu all use matching `dark:` tokens / semantic CSS variables (`bg-background`, `text-foreground`, `border-border`, etc.).
+- Select trigger text must stay readable in dark mode (no accidental light-theme foreground).
+- Do not ship create modals that “revert” to light colors under `.dark`.
