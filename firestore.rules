@@ -10,10 +10,55 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Safe document lookup: never call .data on a missing doc (list queries
+    // that evaluate get() helpers will throw null-value errors otherwise).
+    function userExists(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId));
+    }
+
+    function userData(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data;
+    }
+
+    // Example role helper pattern (generic). Apps define their own role
+    // strings in product specs — do not hardcode domain roles in the starter.
+    // Always: exists → keys().hasAll → then read the field.
+    function signedInUserHasField(field) {
+      return isSignedIn()
+        && userExists(request.auth.uid)
+        && userData(request.auth.uid).keys().hasAll([field]);
+    }
+
+    function signedInUserFieldEquals(field, value) {
+      return signedInUserHasField(field)
+        && userData(request.auth.uid)[field] == value;
+    }
+
     match /users/{userId} {
-      allow read, create, update: if isOwner(userId);
+      // Prefer split list vs get. Collection-wide lists belong on app
+      // collections (see commented pattern below), not on every users/{id}.
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId);
+      allow create, update: if isOwner(userId);
       allow delete: if false;
     }
+
+    // Example collection pattern for app-owned lists (copy when adding real
+    // collections). Prefer allow list: if isSignedIn() with stricter get that
+    // checks membership / resource.data only after keys().hasAll([...]).
+    //
+    // match /items/{itemId} {
+    //   allow list: if isSignedIn();
+    //   allow get: if isSignedIn()
+    //     && resource.data.keys().hasAll(['ownerId'])
+    //     && resource.data.ownerId == request.auth.uid;
+    //   allow create: if isSignedIn()
+    //     && request.resource.data.keys().hasAll(['ownerId'])
+    //     && request.resource.data.ownerId == request.auth.uid;
+    //   allow update, delete: if isSignedIn()
+    //     && resource.data.keys().hasAll(['ownerId'])
+    //     && resource.data.ownerId == request.auth.uid;
+    // }
 
     match /{document=**} {
       allow read, write: if false;
